@@ -1,4 +1,4 @@
 # smart-contracts
-npm install
-npx hardhat compile 
-npx hardhat run scripts/deploy.js --network avax-testnet
+1. npm install
+2. npx hardhat compile
+3. npx hardhat run scripts/deploy.js --network avax-testnet
