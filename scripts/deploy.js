@@ -7,13 +7,11 @@ async function main() {
     const balance = await deployer.provider.getBalance(deployer.address).toString();
     console.log("Account balance:", (await deployer.provider.getBalance(deployer.address)).toString());
 
-    /*
     // Deploy LifePoint token
     const LifePoint = await ethers.getContractFactory("CustomToken");
     const lifePoint = await LifePoint.deploy();
     await lifePoint.deployed();
     console.log("LifePoint deployed to:", lifePoint.address);
-    */
 
     // Deploy TokenLock
     const TokenLock = await ethers.getContractFactory("TokenLock");
@@ -26,7 +24,7 @@ async function main() {
     const lockDuration = 3600 * 24 * 1; // 1 day
     const tx = await tokenLock.initialize(
         deployer.address, // Owner address
-        "0xc4E680309AE00BF8a517428335C846B75b9b0390", // Token address
+        lifePoint.address, // Token address
         depositDeadline,
         lockDuration,
         "Locked LifePoint",
