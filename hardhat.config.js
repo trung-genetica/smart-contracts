@@ -5,9 +5,9 @@ require("dotenv").config();
 module.exports = {
   solidity: "0.8.19",
   networks: {
-    "optimism-sepolia": {
-        url: "https://sepolia.optimism.io",
-        chainId: 11155420,
+    "avax-testnet": {
+        url: "https://api.avax-test.network/ext/bc/C/rpc",
+        chainId: 43113,
         accounts: [process.env.PRIVATE_KEY],
     }
   }
