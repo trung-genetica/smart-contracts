@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract CustomToken is ERC20, Ownable {
     constructor() ERC20("LifePoint", "LP") {
-        _mint(msg.sender, 1000000000 * 10 ** decimals());
+        _mint(msg.sender, 100000000 * 10 ** decimals()); // 100,000,000
     }
 
     function mint(address to, uint256 amount) external onlyOwner {
