@@ -122,6 +122,14 @@ contract TokenLock is OwnableUpgradeable, IERC20 {
     return token.decimals();
   }
 
+  /// @dev Get the locked amount for a specific user and lockId
+  /// @param user The user's address
+  /// @param lockId The LockID associated with the user's lock
+  /// @return The amount of tokens locked for that LockID
+  function getLockedAmount(address user, uint256 lockId) public view returns (uint256) {
+    return users[user].locks[lockId].amount;
+  }
+
   /// @dev Lock claim tokens are non-transferrable: ERC-20 transfer is not supported
   function transfer(address, uint256) external pure override returns (bool) {
     revert NotSupported();
