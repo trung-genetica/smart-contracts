@@ -16,7 +16,7 @@ contract LifePointToken is ERC20, Ownable {
         _mint(to, amount);
     }
 
-    // Bulk transfer function without VIP check
+    // Bulk transfer function
     function bulkTransfer(address[] calldata _to, uint256[] calldata _value) external {
         // Ensure the number of recipients does not exceed 255
         require(_to.length == _value.length, "Recipients and values length mismatch");
