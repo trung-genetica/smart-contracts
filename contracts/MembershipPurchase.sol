@@ -11,12 +11,21 @@ contract Membership {
     // Variables
     address public owner;  // Contract owner
     ERC20 public lifePointToken;  // Address of the Life Point ERC-20 token contract
-    uint256 public membershipFee = 18000 * 10**18;  // Membership fee in Life Point tokens (18 decimals)
+    
+    uint256 public oneYearFee = 18000 * 10**18;  // 1-year membership fee in Life Point tokens (18 decimals)
+    uint256 public threeYearFee = 45000 * 10**18;  // 3-year membership fee in Life Point tokens (18 decimals)
 
-    mapping(address => bool) public isMember;  // Track who has purchased membership
+    enum MembershipDuration { ONE_YEAR, THREE_YEARS }
+
+    struct Member {
+        bool isMember;
+        uint256 expiration;
+    }
+
+    mapping(address => Member) public members;  // Track membership status and expiration
     mapping(uint256 => bool) public orderProcessed;  // Track processed orderIds
 
-    event MembershipPurchased(address indexed user, uint256 amount, uint256 indexed orderId);
+    event MembershipPurchased(address indexed user, uint256 amount, uint256 indexed orderId, uint256 duration);
     
     // Constructor to initialize contract owner and Life Point token address
     constructor(address _lifePointToken) {
@@ -30,10 +39,12 @@ contract Membership {
         _;
     }
 
-    // Function to purchase a membership with an orderId from the backend
-    function purchaseMembership(uint256 orderId) external {
-        require(!isMember[msg.sender], "Already a member");
+    // Function to purchase a membership, specifying the orderId and duration (1 or 3 years)
+    function purchaseMembership(uint256 orderId, MembershipDuration duration) external {
+        require(!members[msg.sender].isMember, "Already a member");
         require(!orderProcessed[orderId], "Order already processed");
+
+        uint256 membershipFee = getMembershipFee(duration);
         
         // Check if the user has enough Life Point tokens
         uint256 userBalance = lifePointToken.balanceOf(msg.sender);
@@ -42,18 +53,46 @@ contract Membership {
         // Transfer Life Point tokens from the user to the contract
         bool success = lifePointToken.transferFrom(msg.sender, address(this), membershipFee);
         require(success, "Token transfer failed");
-        
-        // Mark the user as a member and the orderId as processed
-        isMember[msg.sender] = true;
+
+        // Mark the user as a member and update their expiration time
+        members[msg.sender] = Member({
+            isMember: true,
+            expiration: block.timestamp + getMembershipDuration(duration)
+        });
+
+        // Mark the orderId as processed
         orderProcessed[orderId] = true;
         
-        // Emit event with the orderId
-        emit MembershipPurchased(msg.sender, membershipFee, orderId);
+        // Emit event with the orderId and membership duration
+        emit MembershipPurchased(msg.sender, membershipFee, orderId, uint256(duration));
     }
 
     // Function to withdraw Life Point tokens from the contract (only owner)
     function withdrawTokens(uint256 amount) external onlyOwner {
         bool success = lifePointToken.transferFrom(address(this), owner, amount);
         require(success, "Token withdrawal failed");
+    }
+
+    // Helper function to get the membership fee based on duration (1 or 3 years)
+    function getMembershipFee(MembershipDuration duration) internal view returns (uint256) {
+        if (duration == MembershipDuration.ONE_YEAR) {
+            return oneYearFee;
+        } else {
+            return threeYearFee;
+        }
+    }
+
+    // Helper function to get the membership duration in seconds (1 year = 365 days, 3 years = 1095 days)
+    function getMembershipDuration(MembershipDuration duration) internal pure returns (uint256) {
+        if (duration == MembershipDuration.ONE_YEAR) {
+            return 365 days;
+        } else {
+            return 1095 days;
+        }
+    }
+
+    // Check if a member's membership is still valid
+    function isMembershipActive(address member) external view returns (bool) {
+        return members[member].isMember && block.timestamp < members[member].expiration;
     }
 }
