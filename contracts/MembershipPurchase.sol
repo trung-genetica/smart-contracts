@@ -25,7 +25,7 @@ contract Membership {
     mapping(address => Member) public members;  // Track membership status and expiration
     mapping(uint256 => bool) public orderProcessed;  // Track processed orderIds
 
-    event MembershipPurchased(address indexed user, uint256 amount, uint256 indexed orderId, uint256 duration);
+    event MembershipPurchased(address indexed user, uint256 amount, uint256 indexed orderId, uint8 duration);
     
     // Constructor to initialize contract owner and Life Point token address
     constructor(address _lifePointToken) {
@@ -64,7 +64,7 @@ contract Membership {
         orderProcessed[orderId] = true;
         
         // Emit event with the orderId and membership duration
-        emit MembershipPurchased(msg.sender, membershipFee, orderId, uint256(duration));
+        emit MembershipPurchased(msg.sender, membershipFee, orderId, uint8(duration));
     }
 
     // Function to withdraw Life Point tokens from the contract (only owner)
