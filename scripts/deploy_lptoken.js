@@ -12,22 +12,6 @@ async function main() {
     const lifePoint = await LifePoint.deploy();
     await lifePoint.deployed();
     console.log("LifePoint deployed to:", lifePoint.address);
-
-    // Deploy TokenLock
-    const TokenLock = await ethers.getContractFactory("TokenLock");
-    const tokenLock = await TokenLock.deploy();
-    await tokenLock.deployed();
-    console.log("TokenLock deployed to:", tokenLock.address);
-
-    // Initialize TokenLock contract
-    const tx = await tokenLock.initialize(
-        deployer.address, // Owner address
-        lifePoint.address, // Token address
-        "Locked LifePoint",
-        "LLP"
-    );
-    await tx.wait();
-    console.log("TokenLock initialized.");
 }
 
 main()
